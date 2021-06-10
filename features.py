@@ -25,7 +25,7 @@ import urllib.request
 dataframe = pd.read_csv('training_set_rel3.tsv', encoding = 'latin-1',sep='\t')
 dataframe = dataframe[['essay_id','essay_set','essay','domain1_score']]
 
-dataframe = dataframe[(dataframe['essay_set'] == 1)]
+#dataframe = dataframe[(dataframe['essay_set'] == 1)]
 dataframe.dropna(axis=1, how='all', inplace=True)
 
 dataframe.set_index('essay_id',inplace=True, drop=True)
@@ -227,4 +227,4 @@ dataframe = get_readability_measures(dataframe)
 
 print("rm done")
 
-dataframe.to_csv("allFeaturesSet1.csv",index=False)
+dataframe.to_csv("readabilityAllsets.csv",index=False)

@@ -30,16 +30,17 @@ from sklearn.metrics.pairwise import euclidean_distances
 
 dataframe = pd.read_csv('training_set_rel3.tsv', encoding = 'latin-1',sep='\t')
 dataframe = dataframe[['essay_id','essay_set','essay','domain1_score']]
-
-dataframe = dataframe[(dataframe['essay_set'] == 1)]
+dataframe = dataframe[(dataframe['essay_set'] == 4)]
 dataframe.dropna(axis=1, how='all', inplace=True)
-
 dataframe.set_index('essay_id',inplace=True, drop=True)
 
 countdown = 0
 def get_string_arrays(regExTokenizer, df):
     array_of_strings = []
+    tempnum = 0
     for essay in df['essay']:
+        print(tempnum)
+        tempnum+=1
         words = regExTokenizer.tokenize(essay)
         array = []
         size = len(words)//4
@@ -67,7 +68,7 @@ for i in range(0,len(array_of_strings)):
     tfidf_wm = tfidfvectorizer.fit_transform(array_of_strings[i])
     similarity_matrix = cosine_similarity(tfidf_wm)
     cosine_array.append(similarity_matrix)
-    
+
 print(countdown)
 countdown+=1
 
@@ -232,7 +233,7 @@ for i in range(0,len(array_of_strings)):
     for j in range(1,tfidf_wm.shape[0]):
         temp+=tfidf_wm[j]
     centroid_array.append(temp/tfidf_wm.shape[0])
-    
+
 print(countdown)
 countdown+=1
 
@@ -241,7 +242,7 @@ for i in range(0,len(array_of_strings)):
     tfidf_wm = tfidfvectorizer.fit_transform(array_of_strings[i])
     similarity_matrix = euclidean_distances(tfidf_wm,centroid_array[i])
     euclidcentroid_array.append(similarity_matrix)
-    
+
 print(countdown)
 countdown+=1
 
@@ -281,4 +282,4 @@ print(countdown)
 countdown+=1
 
 
-dataframe.to_csv("CoherenceFeaturesSet1.csv",index=False)
+dataframe.to_csv("CoherenceFeaturesSet4.csv",index=False)
