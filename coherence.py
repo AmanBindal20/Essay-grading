@@ -30,6 +30,7 @@ from sklearn.metrics.pairwise import euclidean_distances
 
 dataframe = pd.read_csv('training_set_rel3.tsv', encoding = 'latin-1',sep='\t')
 dataframe = dataframe[['essay_id','essay_set','essay','domain1_score']]
+
 dataframe = dataframe[(dataframe['essay_set'] == 8)]
 dataframe.dropna(axis=1, how='all', inplace=True)
 dataframe.set_index('essay_id',inplace=True, drop=True)
