@@ -24,13 +24,13 @@ from nltk.tokenize import RegexpTokenizer
 import urllib.request
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import TfidfVectorizer
-tokenizer = RegexpTokenizer(r'\w+')
+tokenizer = RegexpTokenizer(r"[\w']+")
 from sklearn.metrics.pairwise import euclidean_distances
 
 
 dataframe = pd.read_csv('training_set_rel3.tsv', encoding = 'latin-1',sep='\t')
 dataframe = dataframe[['essay_id','essay_set','essay','domain1_score']]
-dataframe = dataframe[(dataframe['essay_set'] == 4)]
+dataframe = dataframe[(dataframe['essay_set'] == 8)]
 dataframe.dropna(axis=1, how='all', inplace=True)
 dataframe.set_index('essay_id',inplace=True, drop=True)
 
@@ -39,9 +39,17 @@ def get_string_arrays(regExTokenizer, df):
     array_of_strings = []
     tempnum = 0
     for essay in df['essay']:
-        print(tempnum)
+        # print(tempnum)
         tempnum+=1
+
         words = regExTokenizer.tokenize(essay)
+        # sent_detector = nltk.data.load('tokenizers/punkt/english.pickle')
+        # words = sent_detector.tokenize(essay.strip())
+        if(tempnum==1532):
+            print(essay,words)
+        if len(words)<=3:
+            array_of_strings.append([])
+            continue;
         array = []
         size = len(words)//4
         curr = 0
@@ -49,24 +57,41 @@ def get_string_arrays(regExTokenizer, df):
         while flag == 0:
             new = ' '
             for i in range(curr,curr+size):
+                
+                    # print(words[i])
                 if i>=len(words):
                     flag = 1
                     break
+                
                 new = new+' '+words[i]
+            
             curr+=10
             array.append(new)
+        
         array_of_strings.append(array)
+        # array_of_strings+=array
+        
     return array_of_strings
 array_of_strings = get_string_arrays(tokenizer,dataframe)
 
 print(countdown)
 countdown+=1
 
-tfidfvectorizer = TfidfVectorizer(analyzer='word',stop_words= 'english')
+tfidfvectorizer = TfidfVectorizer(analyzer='word')
 cosine_array = []
 for i in range(0,len(array_of_strings)):
+
+    
+    # print(i)
+    if(len(array_of_strings[i])<=2) :
+        
+        cosine_array.append(np.empty([1,1],dtype=int))
+        continue
+    if(i==1115):
+        print(len(array_of_strings[i]))
     tfidf_wm = tfidfvectorizer.fit_transform(array_of_strings[i])
     similarity_matrix = cosine_similarity(tfidf_wm)
+
     cosine_array.append(similarity_matrix)
 
 print(countdown)
@@ -80,7 +105,10 @@ def get_avg_distance_bw_neighbours(cosine_array):
         while j < cosine_array[i].shape[0]-1:
             dist+=cosine_array[i][j][j+1]
             j+=1
-        array.append(dist/(cosine_array[i].shape[0]-1))
+        if (cosine_array[i].shape[0]-1)==0:
+            array.append(0)
+        else :
+            array.append(dist/(cosine_array[i].shape[0]-1))
     return array
 avg_distance_bw_neighbours = get_avg_distance_bw_neighbours(cosine_array)
 dataframe=dataframe.assign(avg_distance_bw_neighbours=avg_distance_bw_neighbours)
@@ -200,6 +228,10 @@ countdown+=1
 
 euclidean_array = []
 for i in range(0,len(array_of_strings)):
+    if(len(array_of_strings[i])<=2) :
+        
+        euclidean_array.append(np.empty([1,1],dtype=int))
+        continue
     tfidf_wm = tfidfvectorizer.fit_transform(array_of_strings[i])
     similarity_matrix = euclidean_distances(tfidf_wm)
     euclidean_array.append(similarity_matrix)
@@ -228,6 +260,10 @@ countdown+=1
 
 centroid_array = []
 for i in range(0,len(array_of_strings)):
+    if(len(array_of_strings[i])<=2) :
+        
+        centroid_array.append(0)
+        continue
     tfidf_wm = tfidfvectorizer.fit_transform(array_of_strings[i])
     temp = tfidf_wm[0]
     for j in range(1,tfidf_wm.shape[0]):
@@ -239,6 +275,11 @@ countdown+=1
 
 euclidcentroid_array = []
 for i in range(0,len(array_of_strings)):
+    if(len(array_of_strings[i])<=2) :
+        
+        euclidcentroid_array.append(np.empty([1,1],dtype=int))
+        continue
+
     tfidf_wm = tfidfvectorizer.fit_transform(array_of_strings[i])
     similarity_matrix = euclidean_distances(tfidf_wm,centroid_array[i])
     euclidcentroid_array.append(similarity_matrix)
@@ -282,4 +323,4 @@ print(countdown)
 countdown+=1
 
 
-dataframe.to_csv("CoherenceFeaturesSet4.csv",index=False)
+dataframe.to_csv("CoherenceFeaturesSet8.csv",index=False)
